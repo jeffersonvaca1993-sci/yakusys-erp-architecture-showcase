@@ -1,35 +1,4 @@
-# Yaku-Sys: Core Financiero y ERP Transaccional
-
-## Resumen Ejecutivo
-
-Nota: El código fuente de este proyecto se mantiene en un repositorio privado por acuerdos de confidencialidad. Este repositorio sirve como un caso de estudio de la arquitectura implementada.
-
-Yaku-Sys es un sistema ERP de grado de producción diseñado para gestionar la facturación, recaudación y control de morosidad de una empresa de servicios en Ecuador. El diseño se centra en la inmutabilidad de los datos y la prevención de fraudes operativos, trasladando la carga transaccional pesada directamente al motor de la base de datos.
-
-## Paradigmas de Diseño Implementados
-
-### 1. Motor de Partida Doble en Base de Datos
-
-**Diseño**: Implementación de un catálogo de cuentas y un motor de contabilidad de doble entrada de forma nativa en PostgreSQL.
-
-**Integridad ACID**: Uso intensivo de Triggers y Funciones Almacenadas (plpgsql) para garantizar que cada transacción (cobro, anulación, cargo) cuadre matemáticamente antes de realizar el commit, bloqueando cualquier intento de fraude en caja.
-
-### 2. Arquitectura de Seguridad (RBAC & Lockdown)
-
-Implementación de un modelo de Control de Acceso Basado en Roles (RBAC) con "Guardianes de Arquitectura" a nivel de base de datos.
-
-Políticas de Seguridad de Filas (RLS) para aislar la visibilidad de los datos según el rol operativo del usuario.
-
-### 3. Frontend y Tipado Estricto
-
-Desarrollo de la interfaz de cliente utilizando Next.js y React.
-
-Modelado estricto de tipos con TypeScript para asegurar que el contrato de datos entre la API y el frontend se mantenga íntegro.
-
-## Diagrama de Entidades y Relaciones (ERD)
-
-```mermaid
-erDiagram
+Yaku-Sys: Core Financiero y ERP TransaccionalNota de Autoría: Este proyecto y su arquitectura lógica han sido concebidos y diseñados íntegramente por Jefferson. El código fuente se mantiene en un repositorio privado por acuerdos de confidencialidad; este documento sirve como exposición de la arquitectura y los patrones de diseño implementados.💧 Resumen EjecutivoYaku-Sys es un ERP de grado industrial optimizado para la gestión de servicios públicos (agua potable) en el contexto legal y fiscal de Ecuador. A diferencia de los sistemas tradicionales que confían la lógica al backend/frontend, Yaku-Sys implementa un "Smart Database Pattern", donde la integridad financiera y las reglas de negocio están blindadas a nivel de motor de base de datos.🛠 Stack TecnológicoCore: PostgreSQL 15+ (PostGIS ready).Backend Serverless: Supabase (Auth, Storage, Realtime).Lógica de Negocio: PL/pgSQL (Funciones autoejecutables y Triggers de integridad).Frontend: Next.js 14 (App Router), React, Tailwind CSS.Contrato de Datos: TypeScript (Tipado estricto extremo).🏛 Paradigmas de Arquitectura1. Motor Contable "Hard-Wired"El sistema no "registra" asientos; genera asientos como consecuencia atómica de acciones operativas.Partida Doble Nativa: Implementación de un catálogo de cuentas donde cada transacción cumple con el principio de dualidad antes de que el COMMIT sea exitoso.Running Balances: Optimización de lectura mediante saldos vivos en nodos operativos, sincronizados mediante triggers inyectados.2. Blindaje Documental (Inmutabilidad)La confianza es el pilar del sistema.Snapshotting: Cada factura o recibo se congela en un objeto JSONB inmutable. Si la lógica de tarifas cambia en el futuro, el documento histórico permanece fiel a lo que el cliente recibió.Cadena de Trazabilidad: Cada cambio de estado (GENERADO -> FIRMADO -> ANULADO) queda registrado con sello de tiempo UTC inalterable.3. Seguridad de Nivel Bancario (Lockdown)Esquema Privado: El 100% de las tablas residen en un esquema privado inaccesible vía REST API estándar.Funciones Proxy: Solo se exponen funciones específicas con SECURITY DEFINER, actuando como una "aduana" de datos que valida permisos y sanitiza inputs antes de tocar las tablas core.📊 Diagrama de Entidades y Relaciones (ERD)erDiagram
     %% MÓDULO IDENTIDAD
     IDENTIDADES ||--o{ USUARIOS_SISTEMA : "es_actor_de"
     IDENTIDADES ||--o{ LIBRO_DIARIO : "responsable_de"
@@ -109,9 +78,4 @@ erDiagram
         decimal precio_base
         decimal multa_atraso
     }
-}
-```  
-
-## 📸 Capturas de Pantalla del Sistema
-
-(Añade aquí las imágenes de tu sistema funcionando, esquemas de la base de datos, o vistas del dashboard)
+📸 Evidencia de ImplementaciónVista general del estado de cartera y métricas de morosidad.Ejemplo de cómo una lectura de medidor genera automáticamente la partida doble en el Libro Diario.© 2026 Jefferson - Todos los derechos reservados.
