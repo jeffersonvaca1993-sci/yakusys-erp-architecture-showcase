@@ -13,15 +13,15 @@ El sistema garantiza una **integridad financiera inquebrantable** mediante el us
 ---
 
 ## 🛠 Stack Tecnológico
-* **Database:** PostgreSQL 15+ (Lógica de negocio encapsulada mediante `SECURITY DEFINER`).
-* **Seguridad:** Supabase (Auth, RLS, Storage).
-* **Capa de Lógica:** PL/pgSQL (Motores reactivos, validadores de negocio).
-* **Integridad:** TypeScript (Tipado estricto en el consumo de APIs).
-* **Arquitectura:** Diseño de "Muñeca Rusa" (Nodos financieros jerárquicos).
+* **Database / Lógica Core:** PostgreSQL 15+ (PL/pgSQL encapsulado mediante `SECURITY DEFINER`).
+* **Backend as a Service:** Supabase (Auth, RLS, Storage).
+* **Frontend Core:** Next.js 14 (App Router) + React.
+* **UI/UX & Estilos:** Tailwind CSS + Lucide React / Heroicons.
+* **Tipado e Integridad:** TypeScript estricto en el consumo de APIs.
 
 ---
 
-## 🏛 Pilares Arquitectónicos
+## 🏛 Pilares Arquitectónicos (Backend)
 
 ### 1. Integridad Defensiva (Zero Trust Database)
 El esquema `privado` está estrictamente blindado. Ninguna entidad externa (usuarios o apps) tiene acceso directo a las tablas. El acceso se realiza exclusivamente a través de funciones RPC controladas, asegurando:
@@ -37,14 +37,33 @@ El sistema ejecuta acciones complejas de forma autónoma:
 * **Auto-Amortización:** La inyección de capital en la cuenta `ANTICIPO` despierta el `tf_motor_recaudacion_reactiva`, el cual liquida las deudas pendientes (FIFO) sin intervención humana.
 * **Auto-Facturación:** Generación de cargos y multas automatizada mediante algoritmos de monitoreo de mora.
 
-### 4. Cadena de Bloques Documental
-Cada documento (Estado de Cuenta, Factura, Acuerdo) se congela en formato `JSONB` dentro de `archivo_documental_inmutable`. Esto crea un vínculo indisoluble y auditable entre el archivo físico, su representación contable y el ciclo fiscal correspondiente.
+---
+
+## 💻 Arquitectura Frontend (Next.js & React)
+
+El Frontend está diseñado bajo un modelo **"Thin Client" (Cliente Ligero)** guiado por principios de **Domain-Driven Design (DDD)**. La interfaz no realiza cálculos financieros complejos; su responsabilidad es la recolección estricta de datos y la representación visual del estado del backend.
+
+### 1. Modularidad por Dominios (`src/dominio/`)
+El código no se agrupa por tipo de archivo (components, hooks, utils), sino por contexto de negocio. Cada módulo (Ej: `Recaudacion`, `Socios`, `Facturacion`) es independiente y expone su propio archivo `api.ts` con interfaces de TypeScript (`ClienteDeuda`, `SocioCRM`), garantizando que los cambios en un dominio no rompan el resto del sistema.
+
+### 2. Capa de Abstracción de API (`ejecutarAPI`)
+Todas las llamadas a la base de datos pasan por un único adaptador (`src/compartido/api/cliente.ts`). Esto permite:
+* Intercepción global de errores y estandarización a mensajes amigables (`manejadorErrores.ts`).
+* Detección automática de sesión expirada (401) y ruteo seguro.
+* Tipado estricto en las respuestas de los procedimientos almacenados (RPC).
+
+### 3. Seguridad y Ruteo Dinámico de Roles (RBAC)
+El control de acceso en el cliente utiliza una estrategia de doble guardia:
+* **`AuthGuard` / `GuestGuard`:** Protegen las rutas a nivel de layout.
+* **`getLandingRoute`:** Redirección inteligente que envía a cada trabajador (Cajero, Operario, Admin) a su herramienta específica tras el inicio de sesión.
+* **Filtrado de UI:** El `Sidebar` renderiza dinámicamente las opciones basadas en los roles definidos en `menu.ts`.
+
+### 4. Motor de Renderizado Documental (Mustache + Iframe)
+El componente `VisorDocumento.tsx` aísla las plantillas HTML almacenadas en la base de datos y las hidrata en tiempo real utilizando JSON inmutables. El uso de `iframes` asegura que los estilos del documento no colisionen con los estilos globales de Tailwind de la aplicación web.
 
 ---
 
-## 📊 Arquitectura de Datos (ERD Modular)
-
-Para mantener la legibilidad de la arquitectura, el modelo se divide en sus dos motores principales:
+## 📊 Modelos de Datos (ERD Modular)
 
 ### Motor Financiero y Partida Doble
 Gestiona la contabilidad estricta y los saldos rodantes de los clientes.
@@ -113,7 +132,33 @@ erDiagram
 
 ---
 
-## 🚀 Despliegue (Migraciones)
+## 📁 Estructura del Proyecto Frontend (`/src`)
+
+```text
+src/
+├── app/                      # Next.js App Router (Páginas y Layouts)
+│   ├── (sistema)/            # Rutas protegidas (Dashboard, Caja, Socios)
+│   ├── verificar/            # Verificador público de documentos
+│   └── ingreso/              # Login de personal
+├── compartido/               # Core transversal
+│   ├── api/                  # Adaptadores de Supabase y Manejo de errores
+│   ├── config/               # Roles y menús del sistema
+│   ├── definiciones/         # Tipos y Enums globales
+│   ├── hooks/                # useAuth y lógica de sesión
+│   ├── ui/                   # Design System (Botones, Modales, Tarjetas)
+│   └── utilidades/           # Formateadores (Moneda, Fecha)
+└── dominio/                  # Módulos de Negocio (DDD)
+    ├── Auditoria/            # Panel de Rectificaciones e Historial Contable
+    ├── Campo/                # Interfaz móvil para toma de lecturas
+    ├── EstadoFinanciero/     # Visor de la "Muñeca Rusa"
+    ├── Facturacion/          # Cierres mensuales y barridos masivos
+    ├── Recaudacion/          # Punto de Venta (Caja)
+    └── Socios/               # CRM, Traspasos y Convenios de Pago
+```
+
+---
+
+## 🚀 Despliegue Backend (Migraciones DB)
 El orden de ejecución de las migraciones es estrictamente secuencial para garantizar la integridad de las llaves foráneas (Foreign Keys) y la compilación de funciones:
 
 1. `01_base/`: Inicialización del motor, esquemas y tipos de datos (Enums).
