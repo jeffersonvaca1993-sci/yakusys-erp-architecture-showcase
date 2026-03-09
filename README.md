@@ -18,7 +18,7 @@ Yaku-Sys es un sistema ERP de grado de producción diseñado para gestionar la f
 
 Implementación de un modelo de Control de Acceso Basado en Roles (RBAC) con "Guardianes de Arquitectura" a nivel de base de datos.
 
-Pol��ticas de Seguridad de Filas (RLS) para aislar la visibilidad de los datos según el rol operativo del usuario.
+Políticas de Seguridad de Filas (RLS) para aislar la visibilidad de los datos según el rol operativo del usuario.
 
 ### 3. Frontend y Tipado Estricto
 
@@ -110,7 +110,7 @@ erDiagram
         decimal multa_atraso
     }
 }
-```
+```  
 
 ## 📸 Capturas de Pantalla del Sistema
 
