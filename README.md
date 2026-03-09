@@ -171,6 +171,18 @@ El orden de ejecución de las migraciones es estrictamente secuencial para garan
 
 ---
 
+## 📸 Vistas del Sistema (UI/UX)
+
+La interfaz refleja la arquitectura de datos subyacente, priorizando la claridad y el rendimiento.
+
+![Explorador Financiero - Estado de Situación] <img width="1919" height="1178" alt="EstadoDeSituacion" src="https://github.com/user-attachments/assets/99c83a78-56d0-45e0-82ad-0252508692e7" />
+
+*Explorador Financiero: Visualización en tiempo real de la "Muñeca Rusa" que agrupa saldos transaccionales hacia el plan de cuentas.*
+
+
+---
+
+
 ## 🛡 Consideraciones de Auditoría
 * **Trazabilidad de Actores:** Toda mutación en el sistema está firmada por el UUID de la identidad que ejecuta la transacción.
 * **Cierre de Ciclos Atómico:** Los cierres mensuales son transacciones atómicas que generan la facturación, calculan la morosidad y emiten los documentos inmutables simultáneamente, cerrando el periodo para prevenir alteraciones.
